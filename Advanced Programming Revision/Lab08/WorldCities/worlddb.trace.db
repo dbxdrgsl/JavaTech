@@ -1,0 +1,6 @@
+2025-09-04 01:16:35.605100+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table if not exists continents (\000a  id bigint [*]auto_increment primary key,\000a  name varchar(100) not null unique\000a)"; expected "ARRAY, INVISIBLE, VISIBLE, NOT NULL, DEFAULT, GENERATED, ON UPDATE, NOT NULL, DEFAULT ON NULL, SEQUENCE, SELECTIVITY, COMMENT, CONSTRAINT, COMMENT, PRIMARY KEY, UNIQUE, NOT NULL, CHECK, REFERENCES, ,, )"; SQL statement:
+create table if not exists continents (
+  id bigint auto_increment primary key,
+  name varchar(100) not null unique
+) [42001-224]
