@@ -50,7 +50,7 @@ project/
 ## Technologies Used
 
 ### Current (Labs 4-5)
-- **Java 21** - Modern Java features
+- **Java 17** - Modern Java features
 - **Spring Boot 3.5.7** - Application framework
 - **Spring Data JPA** - Database persistence
 - **PostgreSQL** - Production database
@@ -89,7 +89,7 @@ The application manages four core entities:
 
 ### Prerequisites
 
-- **Java 21** or higher
+- **Java 17** or higher
 - **Maven 3.8+**
 - **PostgreSQL 14+** (or use H2 for quick testing)
 - **Git**

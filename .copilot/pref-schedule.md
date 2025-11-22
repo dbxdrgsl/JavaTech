@@ -14,7 +14,7 @@ PrefSchedule is a student course preference scheduling system built with Spring 
 ## Code Style Conventions
 
 ### General Guidelines
-- Use **Java 21** features where appropriate
+- Use **Java 17** features where appropriate
 - Follow **Spring Boot best practices**
 - Maintain **clean code** principles
 - Write **self-documenting code** with clear naming
