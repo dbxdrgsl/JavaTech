@@ -8,6 +8,9 @@ import ro.uaic.dbxdrgsl.prefschedule.repository.StudentRepository;
 @Component
 public class DataLoader implements CommandLineRunner {
 
+    private static final String DEFAULT_STUDENT_CODE = "S2025-001";
+    private static final int DEFAULT_STUDENT_YEAR = 2;
+
     private final StudentRepository studentRepository;
 
     public DataLoader(StudentRepository studentRepository) {
@@ -21,10 +24,10 @@ public class DataLoader implements CommandLineRunner {
         // Create a sample student (if none exists)
         if (studentRepository.count() == 0) {
             Student s = Student.builder()
-                    .code("S2025-001")
+                    .code(DEFAULT_STUDENT_CODE)
                     .name("Ion Popescu")
                     .email("ion.popescu@example.com")
-                    .year(2)
+                    .year(DEFAULT_STUDENT_YEAR)
                     .build();
             s = studentRepository.save(s);
             System.out.println("Saved sample student: " + s);
