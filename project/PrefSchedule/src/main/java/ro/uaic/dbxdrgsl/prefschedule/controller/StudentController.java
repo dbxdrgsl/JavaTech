@@ -1,5 +1,6 @@
 package ro.uaic.dbxdrgsl.prefschedule.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class StudentController {
 
     // CREATE - Add a new student
     @PostMapping
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+    public ResponseEntity<Student> createStudent(@Valid @RequestBody Student student) {
         Student savedStudent = studentService.save(student);
         return new ResponseEntity<>(savedStudent, HttpStatus.CREATED);
     }
@@ -56,11 +57,15 @@ public class StudentController {
 
     // UPDATE - Update an existing student
     @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student student) {
+    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @Valid @RequestBody Student student) {
         return studentService.findById(id)
                 .map(existingStudent -> {
-                    student.setId(id);
-                    Student updatedStudent = studentService.save(student);
+                    // Update only provided fields, preserving existing data
+                    existingStudent.setName(student.getName());
+                    existingStudent.setEmail(student.getEmail());
+                    existingStudent.setCode(student.getCode());
+                    existingStudent.setYear(student.getYear());
+                    Student updatedStudent = studentService.save(existingStudent);
                     return ResponseEntity.ok(updatedStudent);
                 })
                 .orElse(ResponseEntity.notFound().build());
