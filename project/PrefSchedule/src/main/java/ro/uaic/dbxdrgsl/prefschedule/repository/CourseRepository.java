@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ro.uaic.dbxdrgsl.prefschedule.model.Course;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
@@ -16,10 +17,10 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findByType(String type);
     
     // Derived query - find by code
-    Course findByCode(String code);
+    Optional<Course> findByCode(String code);
     
     // JPQL query - find courses by instructor name
-    @Query("SELECT c FROM Course c JOIN c.instructor i WHERE i.name LIKE %:name%")
+    @Query("SELECT c FROM Course c JOIN c.instructor i WHERE i.name LIKE CONCAT('%', :name, '%')")
     List<Course> findByInstructorNameContaining(@Param("name") String name);
     
     // JPQL query - find optional courses by pack

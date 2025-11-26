@@ -25,7 +25,7 @@ public class CourseService {
         return courseRepository.findById(id);
     }
 
-    public Course findByCode(String code) {
+    public Optional<Course> findByCode(String code) {
         return courseRepository.findByCode(code);
     }
 

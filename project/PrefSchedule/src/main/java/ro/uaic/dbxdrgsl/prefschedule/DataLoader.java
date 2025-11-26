@@ -13,6 +13,7 @@ public class DataLoader implements CommandLineRunner {
 
     private static final String DEFAULT_STUDENT_CODE = "S2025-001";
     private static final int DEFAULT_STUDENT_YEAR = 2;
+    private static final int DESCRIPTION_PREVIEW_LENGTH = 50;
 
     private final StudentService studentService;
     private final InstructorService instructorService;
@@ -43,7 +44,6 @@ public class DataLoader implements CommandLineRunner {
                         .email(faker.internet().emailAddress())
                         .year(faker.number().numberBetween(1, 4))
                         .build();
-                student.setId(null);
                 student = studentService.save(student);
                 System.out.println("Created student: " + student.getName() + " (Year " + student.getYear() + ")");
             }
@@ -57,7 +57,6 @@ public class DataLoader implements CommandLineRunner {
                         .name(faker.name().fullName())
                         .email(faker.internet().emailAddress())
                         .build();
-                instructor.setId(null);
                 instructor = instructorService.save(instructor);
                 System.out.println("Created instructor: " + instructor.getName());
             }
@@ -71,7 +70,6 @@ public class DataLoader implements CommandLineRunner {
                     .semester(1)
                     .name("Advanced Programming Pack")
                     .build();
-            pack1.setId(null);
             pack1 = packService.save(pack1);
             System.out.println("Created pack: " + pack1.getName());
 
@@ -80,7 +78,6 @@ public class DataLoader implements CommandLineRunner {
                     .semester(2)
                     .name("Database Systems Pack")
                     .build();
-            pack2.setId(null);
             pack2 = packService.save(pack2);
             System.out.println("Created pack: " + pack2.getName());
         }
@@ -106,7 +103,6 @@ public class DataLoader implements CommandLineRunner {
                     .groupCount(3)
                     .description(faker.lorem().sentence(10))
                     .build();
-            course1.setId(null);
             course1 = courseService.save(course1);
             System.out.println("Created course: " + course1.getName() + " (ID: " + course1.getId() + ")");
 
@@ -120,7 +116,6 @@ public class DataLoader implements CommandLineRunner {
                     .groupCount(2)
                     .description(faker.lorem().sentence(10))
                     .build();
-            course2.setId(null);
             course2 = courseService.save(course2);
             System.out.println("Created course: " + course2.getName() + " (ID: " + course2.getId() + ")");
 
@@ -143,7 +138,7 @@ public class DataLoader implements CommandLineRunner {
             
             Course updatedCourse = courseService.findById(course1.getId()).orElse(null);
             if (updatedCourse != null) {
-                System.out.println("New description: " + updatedCourse.getDescription().substring(0, Math.min(50, updatedCourse.getDescription().length())) + "...");
+                System.out.println("New description: " + updatedCourse.getDescription().substring(0, Math.min(DESCRIPTION_PREVIEW_LENGTH, updatedCourse.getDescription().length())) + "...");
             }
 
             // DELETE (demonstrating but not actually deleting to keep data)

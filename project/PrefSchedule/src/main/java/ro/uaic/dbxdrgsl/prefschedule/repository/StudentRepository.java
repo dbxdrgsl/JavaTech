@@ -18,6 +18,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     List<Student> findByYear(int year);
     
     // JPQL query - find students by email domain
-    @Query("SELECT s FROM Student s WHERE s.email LIKE %:domain")
+    @Query("SELECT s FROM Student s WHERE s.email LIKE CONCAT('%', :domain)")
     List<Student> findByEmailDomain(@Param("domain") String domain);
 }
