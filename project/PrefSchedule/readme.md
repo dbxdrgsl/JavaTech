@@ -1,3 +1,31 @@
+# PrefSchedule
+
+## ✅ Implementation Status: 4. Compulsory - COMPLETED
+
+This project implements **section 4 (Java Persistence API - Compulsory)** requirements.
+
+### 🎯 Quick Test
+```bash
+cd project/PrefSchedule
+mvn test
+```
+
+### 📖 Documentation
+- **[HOW_TO_TEST.md](HOW_TO_TEST.md)** - Complete tutorial on testing (recommended for beginners)
+- **[TESTING.md](TESTING.md)** - Detailed technical testing guide
+
+### 🏗️ What's Implemented
+- ✅ Spring Boot with Spring Data JPA
+- ✅ PostgreSQL & H2 database support
+- ✅ SQL schema with 4 tables (students, instructors, packs, courses)
+- ✅ Student entity with JPA annotations
+- ✅ StudentRepository interface
+- ✅ CommandLineRunner for testing
+
+---
+
+## Project Overview
+
 ### Project: PrefSchedule
 ***
 GOAL: Design a system that automatically assigns students to optional courses based on their:
