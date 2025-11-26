@@ -6,22 +6,20 @@ import lombok.*;
 @Entity
 @Table(name = "students")
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Student {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class Student extends Person {
     @Column(nullable = false, unique = true)
     private String code;
 
-    @Column(nullable = false)
-    private String name;
-
-    private String email;
-
     @Column(name = "student_year")
     private int year;
+
+    @Builder
+    public Student(Long id, String name, String email, String code, int year) {
+        super(id, name, email);
+        this.code = code;
+        this.year = year;
+    }
 }
