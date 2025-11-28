@@ -11,6 +11,9 @@ Complete entity model with relationships, queries, and services.
 ### 5. Compulsory - COMPLETED ✅
 CRUD REST endpoints for students with comprehensive testing guide.
 
+### 5. Homework - COMPLETED ✅
+Student preferences API with DTOs, validation, ETag, content negotiation, and Swagger UI.
+
 ### 🎯 Quick Test
 ```bash
 cd project/PrefSchedule
@@ -22,6 +25,7 @@ mvn test
 - **[HOMEWORK_SUMMARY.md](HOMEWORK_SUMMARY.md)** - Complete homework implementation details
 - **[HOW_TO_TEST.md](HOW_TO_TEST.md)** - Complete tutorial on testing (recommended for beginners)
 - **[TESTING.md](TESTING.md)** - Detailed technical testing guide
+- **Swagger UI** - Available at http://localhost:8080/swagger-ui.html when running
 
 ### 🏗️ What's Implemented
 
@@ -47,6 +51,15 @@ mvn test
 - ✅ Multiple GET endpoints (by ID, by code, by year)
 - ✅ Comprehensive testing guide with curl examples
 - ✅ Postman collection example
+
+#### Homework (2p) - Section 5
+- ✅ Student preferences domain model (StudentPreference entity)
+- ✅ CRUD REST endpoints for collecting student preferences
+- ✅ Data Transfer Objects (DTOs) with Bean Validation
+- ✅ Custom ResourceNotFoundException with global exception handler
+- ✅ ETag support with If-None-Match conditional requests
+- ✅ Content negotiation for JSON and XML
+- ✅ Springdoc OpenAPI documentation with Swagger UI
 
 ---
 
