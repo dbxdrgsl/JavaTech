@@ -1,5 +1,5 @@
 -- Schema for PrefSchedule
--- Tables: app_users, students, instructors, packs, courses, student_preferences
+-- Tables: app_users, students, instructors, packs, courses, student_preferences, grades
 -- Uses IDENTITY columns for portability between H2 and PostgreSQL (Postgres 10+ supports IDENTITY)
 
 CREATE TABLE IF NOT EXISTS app_users (
@@ -58,9 +58,26 @@ CREATE TABLE IF NOT EXISTS student_preferences (
     CONSTRAINT uk_student_course UNIQUE (student_id, course_id)
 );
 
+CREATE TABLE IF NOT EXISTS grades (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    student_id BIGINT NOT NULL,
+    course_id BIGINT NOT NULL,
+    grade DOUBLE PRECISION NOT NULL,
+    received_at TIMESTAMP NOT NULL,
+    processed_at TIMESTAMP,
+    notes VARCHAR(1000),
+    CONSTRAINT fk_grade_student FOREIGN KEY (student_id) REFERENCES students(id),
+    CONSTRAINT fk_grade_course FOREIGN KEY (course_id) REFERENCES courses(id),
+    CONSTRAINT uk_student_course_grade UNIQUE (student_id, course_id)
+);
+
 -- Notes:
 -- - app_users table stores application users with BCrypt-encrypted passwords
 -- - Optional courses can be identified by type = 'OPTIONAL' and are grouped via pack_id.
 -- - Students express preferences for courses via the student_preferences table.
 -- - The rank_order indicates preference (1 = most preferred). Ties are allowed.
 -- - The version field supports optimistic locking for concurrent updates.
+-- - grades table stores grades received from QuickGrade via RabbitMQ messaging
+-- - Only COMPULSORY courses are stored in grades table (filtered by GradeService)
+-- - received_at: timestamp when message arrived, processed_at: when successfully stored
+
