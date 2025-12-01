@@ -17,6 +17,12 @@ Student preferences API with DTOs, validation, ETag, content negotiation, and Sw
 ### 6. Compulsory - COMPLETED ✅
 Spring Security integration with HTTP Basic Auth protecting all endpoints except /login.
 
+### 6. Homework - COMPLETED ✅
+JWT-based authentication, database users with BCrypt, RBAC with @PreAuthorize, and Actuator security.
+
+### 7. Compulsory - COMPLETED ✅
+RabbitMQ messaging integration with QuickGrade publisher and PrefSchedule consumer.
+
 ### 🎯 Quick Test
 ```bash
 cd project/PrefSchedule
@@ -24,6 +30,7 @@ mvn test
 ```
 
 ### 📖 Documentation
+- **[MESSAGING_TESTING.md](../MESSAGING_TESTING.md)** - Complete messaging testing guide with RabbitMQ
 - **[SECURITY_TESTING.md](SECURITY_TESTING.md)** - Testing secured endpoints with authentication
 - **[REST_API_TESTING.md](REST_API_TESTING.md)** - Complete guide for testing REST endpoints with curl
 - **[HOMEWORK_SUMMARY.md](HOMEWORK_SUMMARY.md)** - Complete homework implementation details
@@ -72,6 +79,22 @@ mvn test
 - ✅ HTTP Basic Authentication enabled
 - ✅ Security configured to permit unauthenticated access only to /login
 - ✅ Two test users: user:password (USER role) and admin:admin (ADMIN role)
+
+#### Homework (2p) - Section 6
+- ✅ JWT-based authentication with token generation and validation
+- ✅ Database-backed user management (AppUser entity)
+- ✅ User registration with BCrypt password encryption
+- ✅ Role-based access control with @PreAuthorize annotations
+- ✅ Method-level security on POST/PUT/DELETE endpoints
+- ✅ Actuator endpoint security (health/info public, metrics require auth)
+
+#### Compulsory (1p) - Section 7
+- ✅ RabbitMQ messaging broker integration
+- ✅ QuickGrade Spring Boot application (grade publisher)
+- ✅ GradeEvent DTO (student code, course code, grade)
+- ✅ Grade publisher service in QuickGrade
+- ✅ Grade consumer service in PrefSchedule
+- ✅ Messages printed to console in PrefSchedule
 
 ---
 
