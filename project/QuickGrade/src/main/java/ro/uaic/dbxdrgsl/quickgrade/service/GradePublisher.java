@@ -15,6 +15,11 @@ public class GradePublisher {
     private final RabbitTemplate rabbitTemplate;
     
     public void publishGrade(GradeEvent gradeEvent) {
+        if (gradeEvent == null) {
+            log.error("Attempted to publish null grade event");
+            throw new IllegalArgumentException("Grade event cannot be null");
+        }
+        
         log.info("Publishing grade event: {}", gradeEvent);
         rabbitTemplate.convertAndSend(RabbitMQConfig.GRADE_QUEUE, gradeEvent);
         log.info("Grade event published successfully");

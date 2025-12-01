@@ -1,5 +1,6 @@
 package ro.uaic.dbxdrgsl.quickgrade.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ public class GradeController {
     private final GradePublisher gradePublisher;
     
     @PostMapping("/publish")
-    public ResponseEntity<String> publishGrade(@RequestBody GradeEvent gradeEvent) {
+    public ResponseEntity<String> publishGrade(@Valid @RequestBody GradeEvent gradeEvent) {
         gradePublisher.publishGrade(gradeEvent);
         return ResponseEntity.ok("Grade event published successfully");
     }

@@ -10,19 +10,25 @@ public class GradeConsumer {
     
     @RabbitListener(queues = RabbitMQConfig.GRADE_QUEUE)
     public void consumeGrade(GradeEvent gradeEvent) {
-        log.info("========================================");
-        log.info("Received grade event from QuickGrade:");
-        log.info("  Student Code: {}", gradeEvent.getStudentCode());
-        log.info("  Course Code:  {}", gradeEvent.getCourseCode());
-        log.info("  Grade:        {}", gradeEvent.getGrade());
-        log.info("========================================");
-        
-        // Print to console for visibility
-        System.out.println("========================================");
-        System.out.println("GRADE EVENT RECEIVED:");
-        System.out.println("  Student: " + gradeEvent.getStudentCode());
-        System.out.println("  Course:  " + gradeEvent.getCourseCode());
-        System.out.println("  Grade:   " + gradeEvent.getGrade());
-        System.out.println("========================================");
+        try {
+            log.info("========================================");
+            log.info("Received grade event from QuickGrade:");
+            log.info("  Student Code: {}", gradeEvent.getStudentCode());
+            log.info("  Course Code:  {}", gradeEvent.getCourseCode());
+            log.info("  Grade:        {}", gradeEvent.getGrade());
+            log.info("========================================");
+            
+            // Print to console for visibility
+            System.out.println("========================================");
+            System.out.println("GRADE EVENT RECEIVED:");
+            System.out.println("  Student: " + gradeEvent.getStudentCode());
+            System.out.println("  Course:  " + gradeEvent.getCourseCode());
+            System.out.println("  Grade:   " + gradeEvent.getGrade());
+            System.out.println("========================================");
+        } catch (Exception e) {
+            log.error("Error processing grade event: {}", gradeEvent, e);
+            // In Section 7 Homework, we'll implement Dead-Letter Queue handling
+            throw e; // Re-throw to allow RabbitMQ retry mechanism
+        }
     }
 }
