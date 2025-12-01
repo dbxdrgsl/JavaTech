@@ -3,11 +3,13 @@ package ro.uaic.dbxdrgsl.prefschedule.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @MappedSuperclass
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public abstract class Person {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

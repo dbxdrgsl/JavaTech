@@ -3,49 +3,121 @@ package ro.uaic.dbxdrgsl.prefschedule.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import ro.uaic.dbxdrgsl.prefschedule.dto.AuthResponse;
+import ro.uaic.dbxdrgsl.prefschedule.dto.LoginRequest;
+import ro.uaic.dbxdrgsl.prefschedule.dto.RegisterRequest;
+import ro.uaic.dbxdrgsl.prefschedule.model.AppUser;
+import ro.uaic.dbxdrgsl.prefschedule.repository.AppUserRepository;
+import ro.uaic.dbxdrgsl.prefschedule.security.JwtTokenProvider;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Mock authentication controller for testing Spring Security integration.
- * This is a simplified login endpoint for demonstration purposes.
+ * Authentication controller with JWT-based login and registration endpoints.
  */
 @RestController
-@Tag(name = "Authentication", description = "Mock authentication endpoints")
+@RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "JWT-based authentication endpoints")
+@RequiredArgsConstructor
 public class AuthController {
 
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AppUserRepository appUserRepository;
+    private final PasswordEncoder passwordEncoder;
+
     /**
-     * Mock login endpoint that accepts username and password.
-     * NOTE: This is a mock endpoint for demonstration purposes only.
-     * Actual authentication is handled by Spring Security's HTTP Basic Auth.
-     * In Section 6 Homework, this will be replaced with JWT token generation.
+     * JWT-based login endpoint that authenticates users and issues tokens.
      */
-    @Operation(summary = "Mock login endpoint (demonstration only)", 
-               description = "Accepts username and password. Returns a mock authentication response. " +
-                           "NOTE: This does not perform actual authentication. " +
-                           "Use HTTP Basic Auth (Authorization header) to authenticate API requests. " +
-                           "This endpoint will be enhanced with JWT token generation in Section 6 Homework.")
-    @ApiResponse(responseCode = "200", description = "Mock login response returned")
-    @PostMapping("/api/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        // This is a mock endpoint - actual authentication is handled by Spring Security
-        // In Section 6 Homework, this will validate credentials and issue JWT tokens
-        
-        LoginResponse response = new LoginResponse(
-                "Mock login response for: " + request.getUsername() + 
-                ". Note: Use HTTP Basic Auth for actual authentication.",
-                LocalDateTime.now(),
-                "mock-token-" + System.currentTimeMillis()
+    @Operation(summary = "JWT login", 
+               description = "Authenticates user credentials and returns a JWT token. " +
+                           "Use the returned token in the Authorization header as 'Bearer {token}'.")
+    @ApiResponse(responseCode = "200", description = "Successfully authenticated")
+    @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
-        
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwt = jwtTokenProvider.generateToken(userDetails);
+
+        // Extract role from authorities
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(auth -> auth.getAuthority().replace("ROLE_", ""))
+                .orElse("USER");
+
+        AuthResponse response = new AuthResponse(jwt, userDetails.getUsername(), role);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * User registration endpoint with BCrypt password encryption.
+     */
+    @Operation(summary = "Register new user", 
+               description = "Creates a new user account with encrypted password. " +
+                           "Role can be STUDENT, INSTRUCTOR, or ADMIN.")
+    @ApiResponse(responseCode = "201", description = "User successfully registered")
+    @ApiResponse(responseCode = "400", description = "Invalid input or username/email already exists")
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        // Check if username already exists
+        if (appUserRepository.existsByUsername(request.getUsername())) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Username already exists");
+            return ResponseEntity.badRequest().body(error);
+        }
+
+        // Check if email already exists
+        if (appUserRepository.existsByEmail(request.getEmail())) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Email already exists");
+            return ResponseEntity.badRequest().body(error);
+        }
+
+        // Validate role
+        AppUser.Role role;
+        try {
+            role = AppUser.Role.valueOf(request.getRole().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Invalid role. Must be STUDENT, INSTRUCTOR, or ADMIN");
+            return ResponseEntity.badRequest().body(error);
+        }
+
+        // Create new user with encrypted password
+        AppUser user = AppUser.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
+                .email(request.getEmail())
+                .role(role)
+                .enabled(true)
+                .build();
+
+        appUserRepository.save(user);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "User registered successfully");
+        response.put("username", user.getUsername());
+        response.put("role", user.getRole().name());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -53,45 +125,22 @@ public class AuthController {
      */
     @Operation(summary = "Get current user", description = "Returns information about the currently authenticated user")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved user info")
-    @GetMapping("/api/me")
-    public ResponseEntity<UserInfo> getCurrentUser() {
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
-            UserInfo userInfo = new UserInfo(
-                    auth.getName(),
-                    auth.getAuthorities().toString(),
-                    true
-            );
+            Map<String, Object> userInfo = new HashMap<>();
+            userInfo.put("username", auth.getName());
+            userInfo.put("authorities", auth.getAuthorities());
+            userInfo.put("authenticated", true);
             return ResponseEntity.ok(userInfo);
         }
         
-        return ResponseEntity.ok(new UserInfo("anonymous", "[]", false));
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class LoginRequest {
-        private String username;
-        private String password;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class LoginResponse {
-        private String message;
-        private LocalDateTime timestamp;
-        private String token;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class UserInfo {
-        private String username;
-        private String authorities;
-        private boolean authenticated;
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("username", "anonymous");
+        userInfo.put("authorities", "[]");
+        userInfo.put("authenticated", false);
+        return ResponseEntity.ok(userInfo);
     }
 }

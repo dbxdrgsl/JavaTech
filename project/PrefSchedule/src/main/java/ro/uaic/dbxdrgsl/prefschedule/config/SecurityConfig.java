@@ -1,58 +1,75 @@
 package ro.uaic.dbxdrgsl.prefschedule.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ro.uaic.dbxdrgsl.prefschedule.security.CustomUserDetailsService;
+import ro.uaic.dbxdrgsl.prefschedule.security.JwtAuthenticationFilter;
 
 /**
  * Security configuration for the PrefSchedule application.
- * Configures Spring Security to protect all endpoints except /login.
+ * Implements JWT-based authentication with role-based access control.
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final CustomUserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // CSRF disabled for stateless REST API testing
-            // In Section 6 Homework, we'll use JWT tokens which don't require CSRF protection
-            // For session-based authentication, CSRF should be enabled
+            // CSRF disabled for stateless REST API with JWT
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/api/login").permitAll() // Allow unauthenticated access to login
-                .anyRequest().authenticated() // Require authentication for all other endpoints
+                // Public endpoints
+                .requestMatchers("/api/auth/**", "/api/register", "/actuator/health", "/actuator/info").permitAll()
+                // Swagger/OpenAPI documentation
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                // Actuator metrics require authentication
+                .requestMatchers("/actuator/metrics/**", "/actuator/**").authenticated()
+                // GET endpoints are public (read-only access)
+                .requestMatchers(HttpMethod.GET, "/api/students/**", "/api/preferences/**").permitAll()
+                // POST/PUT/DELETE require authentication (role-based via @PreAuthorize)
+                .anyRequest().authenticated()
             )
-            .httpBasic(httpBasic -> {}); // Enable HTTP Basic authentication
+            // Stateless session management for JWT
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Add JWT filter before UsernamePasswordAuthenticationFilter
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        // Create an in-memory user for testing
-        UserDetails user = User.builder()
-                .username("user")
-                .password(passwordEncoder().encode("password"))
-                .roles("USER")
-                .build();
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean

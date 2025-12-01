@@ -1,6 +1,16 @@
 -- Schema for PrefSchedule
--- Tables: students, instructors, packs, courses, student_preferences
+-- Tables: app_users, students, instructors, packs, courses, student_preferences
 -- Uses IDENTITY columns for portability between H2 and PostgreSQL (Postgres 10+ supports IDENTITY)
+
+CREATE TABLE IF NOT EXISTS app_users (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    role VARCHAR(50) NOT NULL, -- 'STUDENT', 'INSTRUCTOR', or 'ADMIN'
+    enabled BOOLEAN DEFAULT TRUE
+);
 
 CREATE TABLE IF NOT EXISTS students (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -49,6 +59,7 @@ CREATE TABLE IF NOT EXISTS student_preferences (
 );
 
 -- Notes:
+-- - app_users table stores application users with BCrypt-encrypted passwords
 -- - Optional courses can be identified by type = 'OPTIONAL' and are grouped via pack_id.
 -- - Students express preferences for courses via the student_preferences table.
 -- - The rank_order indicates preference (1 = most preferred). Ties are allowed.

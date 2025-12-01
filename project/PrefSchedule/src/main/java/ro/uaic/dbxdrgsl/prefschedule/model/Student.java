@@ -3,6 +3,7 @@ package ro.uaic.dbxdrgsl.prefschedule.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "students")
@@ -10,6 +11,8 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class Student extends Person {
     @NotBlank(message = "Student code is required")
     @Column(nullable = false, unique = true)
@@ -19,11 +22,4 @@ public class Student extends Person {
     @Max(value = 6, message = "Year must not exceed 6")
     @Column(name = "student_year")
     private int year;
-
-    @Builder
-    public Student(Long id, String name, String email, String code, int year) {
-        super(id, name, email);
-        this.code = code;
-        this.year = year;
-    }
 }

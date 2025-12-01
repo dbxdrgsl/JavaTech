@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 import ro.uaic.dbxdrgsl.prefschedule.dto.StudentPreferenceDTO;
@@ -36,7 +37,7 @@ public class StudentPreferenceController {
     }
 
     /**
-     * Create a new student preference.
+     * Create a new student preference (students can create their own preferences).
      */
     @Operation(summary = "Create a new student preference", 
                description = "Creates a preference record linking a student to a course with a rank order")
@@ -53,6 +54,7 @@ public class StudentPreferenceController {
     })
     @PostMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
                  consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'INSTRUCTOR')")
     public ResponseEntity<StudentPreferenceResponseDTO> createPreference(
             @Valid @RequestBody StudentPreferenceDTO dto) {
         StudentPreferenceResponseDTO created = preferenceService.createPreference(dto);
@@ -60,7 +62,7 @@ public class StudentPreferenceController {
     }
 
     /**
-     * Get all student preferences.
+     * Get all student preferences (public for viewing).
      */
     @Operation(summary = "Get all student preferences",
                description = "Retrieves a list of all student course preferences")
@@ -74,7 +76,7 @@ public class StudentPreferenceController {
     }
 
     /**
-     * Get a preference by ID with ETag support.
+     * Get a preference by ID with ETag support (public for viewing).
      * Supports conditional requests via If-None-Match header.
      */
     @Operation(summary = "Get a preference by ID",
@@ -160,6 +162,9 @@ public class StudentPreferenceController {
     /**
      * Update a preference.
      */
+    /**
+     * Update a preference (students and instructors can update).
+     */
     @Operation(summary = "Update a preference",
                description = "Updates an existing student preference")
     @ApiResponses(value = {
@@ -170,6 +175,7 @@ public class StudentPreferenceController {
     @PutMapping(value = "/{id}",
                 produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
                 consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN', 'INSTRUCTOR')")
     public ResponseEntity<StudentPreferenceResponseDTO> updatePreference(
             @Parameter(description = "ID of the preference to update") @PathVariable Long id,
             @Valid @RequestBody StudentPreferenceDTO dto) {
@@ -184,7 +190,7 @@ public class StudentPreferenceController {
     }
 
     /**
-     * Delete a preference.
+     * Delete a preference (ADMIN or student who owns the preference).
      */
     @Operation(summary = "Delete a preference",
                description = "Deletes a student preference by ID")
@@ -193,6 +199,7 @@ public class StudentPreferenceController {
         @ApiResponse(responseCode = "404", description = "Preference not found")
     })
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     public ResponseEntity<Void> deletePreference(
             @Parameter(description = "ID of the preference to delete") @PathVariable Long id) {
         preferenceService.deleteById(id);
