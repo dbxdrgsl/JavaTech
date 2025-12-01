@@ -14,6 +14,9 @@ CRUD REST endpoints for students with comprehensive testing guide.
 ### 5. Homework - COMPLETED ✅
 Student preferences API with DTOs, validation, ETag, content negotiation, and Swagger UI.
 
+### 6. Compulsory - COMPLETED ✅
+Spring Security integration with HTTP Basic Auth protecting all endpoints except /login.
+
 ### 🎯 Quick Test
 ```bash
 cd project/PrefSchedule
@@ -21,6 +24,7 @@ mvn test
 ```
 
 ### 📖 Documentation
+- **[SECURITY_TESTING.md](SECURITY_TESTING.md)** - Testing secured endpoints with authentication
 - **[REST_API_TESTING.md](REST_API_TESTING.md)** - Complete guide for testing REST endpoints with curl
 - **[HOMEWORK_SUMMARY.md](HOMEWORK_SUMMARY.md)** - Complete homework implementation details
 - **[HOW_TO_TEST.md](HOW_TO_TEST.md)** - Complete tutorial on testing (recommended for beginners)
@@ -32,7 +36,7 @@ mvn test
 #### Compulsory (1p) - Section 4
 - ✅ Spring Boot with Spring Data JPA
 - ✅ PostgreSQL & H2 database support
-- ✅ SQL schema with 4 tables
+- ✅ SQL schema with 5 tables
 - ✅ Student entity with JPA annotations
 - ✅ StudentRepository interface
 - ✅ CommandLineRunner for testing
@@ -60,6 +64,14 @@ mvn test
 - ✅ ETag support with If-None-Match conditional requests
 - ✅ Content negotiation for JSON and XML
 - ✅ Springdoc OpenAPI documentation with Swagger UI
+
+#### Compulsory (1p) - Section 6
+- ✅ Spring Security integration
+- ✅ All endpoints protected by default
+- ✅ Mock /login endpoint (publicly accessible)
+- ✅ HTTP Basic Authentication enabled
+- ✅ Security configured to permit unauthenticated access only to /login
+- ✅ Two test users: user:password (USER role) and admin:admin (ADMIN role)
 
 ---
 
