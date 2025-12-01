@@ -10,9 +10,6 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,28 +76,6 @@ public class RabbitMQConfig {
     }
     
     /**
-     * Retry template with exponential backoff
-     */
-    @Bean
-    public RetryTemplate retryTemplate() {
-        RetryTemplate retryTemplate = new RetryTemplate();
-        
-        // Retry policy: max 3 attempts
-        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
-        retryPolicy.setMaxAttempts(MAX_RETRY_ATTEMPTS);
-        retryTemplate.setRetryPolicy(retryPolicy);
-        
-        // Exponential backoff: 2s, 4s, 8s (capped at 10s)
-        ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
-        backOffPolicy.setInitialInterval(INITIAL_RETRY_INTERVAL);
-        backOffPolicy.setMultiplier(RETRY_MULTIPLIER);
-        backOffPolicy.setMaxInterval(MAX_RETRY_INTERVAL);
-        retryTemplate.setBackOffPolicy(backOffPolicy);
-        
-        return retryTemplate;
-    }
-    
-    /**
      * Message recoverer: sends failed messages to DLQ after max retries
      */
     @Bean
@@ -109,13 +84,12 @@ public class RabbitMQConfig {
     }
     
     /**
-     * Listener container factory with retry configuration
+     * Listener container factory with message converter
      */
     @Bean
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
             ConnectionFactory connectionFactory,
-            MessageConverter messageConverter,
-            RetryTemplate retryTemplate) {
+            MessageConverter messageConverter) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(messageConverter);
