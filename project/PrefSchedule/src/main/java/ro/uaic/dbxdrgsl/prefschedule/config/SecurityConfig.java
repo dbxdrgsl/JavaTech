@@ -39,6 +39,8 @@ public class SecurityConfig {
             // CSRF disabled for stateless REST API with JWT
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
+                // Static resources (frontend)
+                .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                 // Public endpoints
                 .requestMatchers("/api/auth/**", "/api/register", "/actuator/health", "/actuator/info").permitAll()
                 // Swagger/OpenAPI documentation
@@ -46,7 +48,8 @@ public class SecurityConfig {
                 // Actuator metrics require authentication
                 .requestMatchers("/actuator/metrics/**", "/actuator/**").authenticated()
                 // GET endpoints are public (read-only access)
-                .requestMatchers(HttpMethod.GET, "/api/students/**", "/api/preferences/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/students/**", "/api/preferences/**", 
+                                 "/api/courses/**", "/api/packs/**", "/api/grades/**").permitAll()
                 // POST/PUT/DELETE require authentication (role-based via @PreAuthorize)
                 .anyRequest().authenticated()
             )
