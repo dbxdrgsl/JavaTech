@@ -23,6 +23,12 @@ JWT-based authentication, database users with BCrypt, RBAC with @PreAuthorize, a
 ### 7. Compulsory - COMPLETED ✅
 RabbitMQ messaging integration with QuickGrade publisher and PrefSchedule consumer.
 
+### 7. Homework - COMPLETED ✅
+Database persistence for grades, course filtering (COMPULSORY only), DLQ, retry mechanism, and REST API for grades.
+
+### 8. Compulsory - COMPLETED ✅
+REST client communication with QuickGrade microservice using RestTemplate for synchronous inter-service calls.
+
 ### 🎯 Quick Test
 ```bash
 cd project/PrefSchedule
@@ -30,6 +36,7 @@ mvn test
 ```
 
 ### 📖 Documentation
+- **[REST_CLIENT_TESTING.md](../REST_CLIENT_TESTING.md)** - Complete guide for REST client communication (Section 8)
 - **[MESSAGING_TESTING.md](../MESSAGING_TESTING.md)** - Complete messaging testing guide with RabbitMQ
 - **[SECURITY_TESTING.md](SECURITY_TESTING.md)** - Testing secured endpoints with authentication
 - **[REST_API_TESTING.md](REST_API_TESTING.md)** - Complete guide for testing REST endpoints with curl

@@ -8,6 +8,8 @@ QuickGrade is a Spring Boot application that publishes student grade events to a
 
 - **Grade Event Publishing**: Publishes student grades to RabbitMQ
 - **REST API**: Endpoints for publishing individual or test grade events
+- **Grade Statistics**: Tracks and exposes statistics about published grades (Section 8)
+- **REST Endpoints**: Provides statistics for other microservices to query
 - **JSON Message Format**: Structured grade events with student code, course code, and grade
 - **RabbitMQ Integration**: Uses Spring AMQP for reliable message delivery
 
@@ -15,6 +17,10 @@ QuickGrade is a Spring Boot application that publishes student grade events to a
 
 ```
 REST API → GradeController → GradePublisher → RabbitMQ (grade.queue)
+                           ↓
+                    Statistics Service (Section 8)
+                           ↓
+                    REST API (statistics endpoint)
 ```
 
 ## Tech Stack
@@ -38,9 +44,11 @@ QuickGrade/
 │   │   │   ├── controller/
 │   │   │   │   └── GradeController.java
 │   │   │   ├── dto/
-│   │   │   │   └── GradeEvent.java
+│   │   │   │   ├── GradeEvent.java
+│   │   │   │   └── GradeStatistics.java
 │   │   │   └── service/
-│   │   │       └── GradePublisher.java
+│   │   │       ├── GradePublisher.java
+│   │   │       └── GradeStatisticsService.java
 │   │   └── resources/
 │   │       └── application.properties
 │   └── test/
@@ -108,6 +116,61 @@ curl -X POST http://localhost:8081/api/grades/publish \
 **Response:**
 ```
 Grade event published successfully
+```
+
+### 2. Test Publish (Sample Data)
+
+Publishes 3 sample grade events for testing.
+
+**Endpoint:** `GET /api/grades/test`
+
+**cURL Example:**
+```bash
+curl http://localhost:8081/api/grades/test
+```
+
+**Response:**
+```
+3 sample grade events published successfully
+```
+
+### 3. Get Grade Statistics (Section 8. Compulsory)
+
+Get statistics about published grades. This endpoint is called by PrefSchedule microservice.
+
+**Endpoint:** `GET /api/grades/statistics`
+
+**cURL Example:**
+```bash
+curl http://localhost:8081/api/grades/statistics
+```
+
+**Response:**
+```json
+{
+  "totalGradesPublished": 3,
+  "averageGrade": 8.7,
+  "minGrade": 7.9,
+  "maxGrade": 9.5,
+  "lastPublishedStudent": "S003",
+  "lastPublishedCourse": "PHY101"
+}
+```
+
+### 4. Reset Statistics
+
+Reset the statistics (for testing purposes).
+
+**Endpoint:** `DELETE /api/grades/statistics`
+
+**cURL Example:**
+```bash
+curl -X DELETE http://localhost:8081/api/grades/statistics
+```
+
+**Response:**
+```
+Statistics reset successfully
 ```
 
 ### 2. Publish Test Grades

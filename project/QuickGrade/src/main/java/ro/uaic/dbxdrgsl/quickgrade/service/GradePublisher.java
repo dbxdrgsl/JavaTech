@@ -13,6 +13,7 @@ import ro.uaic.dbxdrgsl.quickgrade.dto.GradeEvent;
 public class GradePublisher {
     
     private final RabbitTemplate rabbitTemplate;
+    private final GradeStatisticsService statisticsService;
     
     public void publishGrade(GradeEvent gradeEvent) {
         if (gradeEvent == null) {
@@ -22,6 +23,10 @@ public class GradePublisher {
         
         log.info("Publishing grade event: {}", gradeEvent);
         rabbitTemplate.convertAndSend(RabbitMQConfig.GRADE_QUEUE, gradeEvent);
+        
+        // Record the grade in statistics
+        statisticsService.recordGrade(gradeEvent);
+        
         log.info("Grade event published successfully");
     }
 }
