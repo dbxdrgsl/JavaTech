@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ro.uaic.dbxdrgsl.quickgrade.dto.GradeEvent;
 import ro.uaic.dbxdrgsl.quickgrade.dto.GradeStatistics;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.DoubleSummaryStatistics;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -17,14 +17,14 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GradeStatisticsService {
     
     private final AtomicLong totalGrades = new AtomicLong(0);
-    private final List<Double> grades = new ArrayList<>();
-    private String lastStudentCode;
-    private String lastCourseCode;
+    private final CopyOnWriteArrayList<Double> grades = new CopyOnWriteArrayList<>();
+    private volatile String lastStudentCode;
+    private volatile String lastCourseCode;
     
     /**
      * Record a grade that was published
      */
-    public synchronized void recordGrade(GradeEvent event) {
+    public void recordGrade(GradeEvent event) {
         totalGrades.incrementAndGet();
         grades.add(event.getGrade());
         lastStudentCode = event.getStudentCode();
@@ -36,7 +36,7 @@ public class GradeStatisticsService {
     /**
      * Get current grade statistics
      */
-    public synchronized GradeStatistics getStatistics() {
+    public GradeStatistics getStatistics() {
         if (grades.isEmpty()) {
             return GradeStatistics.builder()
                     .totalGradesPublished(0)
@@ -48,26 +48,18 @@ public class GradeStatisticsService {
                     .build();
         }
         
-        double average = grades.stream()
+        // Use DoubleSummaryStatistics for efficient single-pass calculation
+        DoubleSummaryStatistics stats = grades.stream()
                 .mapToDouble(Double::doubleValue)
-                .average()
-                .orElse(0.0);
+                .summaryStatistics();
         
-        double min = grades.stream()
-                .mapToDouble(Double::doubleValue)
-                .min()
-                .orElse(0.0);
-        
-        double max = grades.stream()
-                .mapToDouble(Double::doubleValue)
-                .max()
-                .orElse(0.0);
+        double average = Math.round(stats.getAverage() * 100.0) / 100.0;
         
         return GradeStatistics.builder()
                 .totalGradesPublished(totalGrades.get())
-                .averageGrade(Math.round(average * 100.0) / 100.0)
-                .minGrade(min)
-                .maxGrade(max)
+                .averageGrade(average)
+                .minGrade(stats.getMin())
+                .maxGrade(stats.getMax())
                 .lastPublishedStudent(lastStudentCode != null ? lastStudentCode : "N/A")
                 .lastPublishedCourse(lastCourseCode != null ? lastCourseCode : "N/A")
                 .build();
@@ -76,7 +68,7 @@ public class GradeStatisticsService {
     /**
      * Reset statistics (for testing purposes)
      */
-    public synchronized void reset() {
+    public void reset() {
         totalGrades.set(0);
         grades.clear();
         lastStudentCode = null;

@@ -3,6 +3,8 @@ package ro.uaic.dbxdrgsl.prefschedule.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -42,12 +44,17 @@ public class QuickGradeClientService {
     
     /**
      * Check if QuickGrade service is available
+     * Lightweight health check that only checks HTTP status
      * @return true if service responds, false otherwise
      */
     public boolean isQuickGradeAvailable() {
+        String url = quickGradeBaseUrl + "/api/grades/statistics";
+        
         try {
-            getGradeStatistics();
-            return true;
+            ResponseEntity<Void> response = restTemplate.getForEntity(url, Void.class);
+            boolean isAvailable = response.getStatusCode() == HttpStatus.OK;
+            log.debug("QuickGrade service health check: {}", isAvailable ? "UP" : "DOWN");
+            return isAvailable;
         } catch (Exception e) {
             log.warn("QuickGrade service is not available: {}", e.getMessage());
             return false;
