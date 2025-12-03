@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrefSchedule - Student Course Preference System</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <h1>📚 PrefSchedule</h1>
+                <nav id="mainNav">
+                    <button class="nav-btn" onclick="showSection('login')">Login</button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <!-- Login Section -->
+            <section id="login" class="section active">
+                <div class="card">
+                    <h2>🔐 Login</h2>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label>Username:</label>
+                            <input type="text" id="loginUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password:</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-secondary" onclick="showSection('register')">Register</button>
+                    </form>
+                    <div id="loginMessage" class="message"></div>
+                </div>
+            </section>
+
+            <!-- Register Section -->
+            <section id="register" class="section">
+                <div class="card">
+                    <h2>📝 Register</h2>
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label>Username:</label>
+                            <input type="text" id="regUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password:</label>
+                            <input type="password" id="regPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" id="regName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" id="regEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Role:</label>
+                            <select id="regRole" required>
+                                <option value="STUDENT">Student</option>
+                                <option value="INSTRUCTOR">Instructor</option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                        <button type="button" class="btn btn-secondary" onclick="showSection('login')">Back to Login</button>
+                    </form>
+                    <div id="registerMessage" class="message"></div>
+                </div>
+            </section>
+
+            <!-- Dashboard -->
+            <section id="dashboard" class="section">
+                <div class="card">
+                    <h2>🏠 Dashboard</h2>
+                    <div id="userInfo" class="user-info"></div>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card" onclick="showSection('students')">
+                            <h3>👨‍🎓 Students</h3>
+                            <p>Manage student records</p>
+                            <div id="studentCount" class="count">-</div>
+                        </div>
+                        <div class="dashboard-card" onclick="showSection('courses')">
+                            <h3>📚 Courses</h3>
+                            <p>View and manage courses</p>
+                            <div id="courseCount" class="count">-</div>
+                        </div>
+                        <div class="dashboard-card" onclick="showSection('packs')">
+                            <h3>📦 Packs</h3>
+                            <p>Course pack management</p>
+                            <div id="packCount" class="count">-</div>
+                        </div>
+                        <div class="dashboard-card" onclick="showSection('preferences')">
+                            <h3>⭐ Preferences</h3>
+                            <p>Student course preferences</p>
+                            <div id="preferenceCount" class="count">-</div>
+                        </div>
+                        <div class="dashboard-card" onclick="showSection('grades')">
+                            <h3>📊 Grades</h3>
+                            <p>View grades from QuickGrade</p>
+                            <div id="gradeCount" class="count">-</div>
+                        </div>
+                        <div class="dashboard-card" onclick="showSection('microservices')">
+                            <h3>🔗 Microservices</h3>
+                            <p>Integration with QuickGrade</p>
+                            <div id="serviceStatus" class="count">-</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="students" class="section">
+                <div class="card">
+                    <h2>👨‍🎓 Students Management</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-primary" onclick="showAddStudentForm()">➕ Add Student</button>
+                        <button class="btn btn-secondary" onclick="loadStudents()">🔄 Refresh</button>
+                        <input type="text" id="studentSearchInput" placeholder="Search by code or name..." 
+                               onkeyup="filterStudents()" class="search-input">
+                    </div>
+                    
+                    <div id="addStudentForm" class="form-container" style="display:none;">
+                        <h3>Add New Student</h3>
+                        <form id="studentForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Code:</label>
+                                    <input type="text" id="studentCode" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Name:</label>
+                                    <input type="text" id="studentName" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Email:</label>
+                                    <input type="email" id="studentEmail" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Year:</label>
+                                    <input type="number" id="studentYear" min="1" max="6" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelAddStudent()">Cancel</button>
+                        </form>
+                    </div>
+
+                    <div id="studentsList" class="data-list"></div>
+                    <div id="studentsMessage" class="message"></div>
+                </div>
+            </section>
+
+            <!-- Courses Section -->
+            <section id="courses" class="section">
+                <div class="card">
+                    <h2>📚 Courses</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-secondary" onclick="loadCourses()">🔄 Refresh</button>
+                        <select id="courseTypeFilter" onchange="filterCourses()" class="filter-select">
+                            <option value="">All Types</option>
+                            <option value="COMPULSORY">Compulsory</option>
+                            <option value="OPTIONAL">Optional</option>
+                        </select>
+                    </div>
+                    <div id="coursesList" class="data-list"></div>
+                    <div id="coursesMessage" class="message"></div>
+                </div>
+            </section>
+
+            <!-- Packs Section -->
+            <section id="packs" class="section">
+                <div class="card">
+                    <h2>📦 Course Packs</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-secondary" onclick="loadPacks()">🔄 Refresh</button>
+                        <select id="packYearFilter" onchange="filterPacks()" class="filter-select">
+                            <option value="">All Years</option>
+                            <option value="1">Year 1</option>
+                            <option value="2">Year 2</option>
+                            <option value="3">Year 3</option>
+                            <option value="4">Year 4</option>
+                        </select>
+                    </div>
+                    <div id="packsList" class="data-list"></div>
+                    <div id="packsMessage" class="message"></div>
+                </div>
+            </section>
+
+            <!-- Preferences Section -->
+            <section id="preferences" class="section">
+                <div class="card">
+                    <h2>⭐ Student Preferences</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-primary" onclick="showAddPreferenceForm()">➕ Add Preference</button>
+                        <button class="btn btn-secondary" onclick="loadPreferences()">🔄 Refresh</button>
+                        <select id="preferenceStudentFilter" onchange="filterPreferences()" class="filter-select">
+                            <option value="">All Students</option>
+                        </select>
+                    </div>
+                    
+                    <div id="addPreferenceForm" class="form-container" style="display:none;">
+                        <h3>Add New Preference</h3>
+                        <form id="preferenceForm">
+                            <div class="form-group">
+                                <label>Student:</label>
+                                <select id="prefStudentId" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Course:</label>
+                                <select id="prefCourseId" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Rank Order:</label>
+                                <input type="number" id="prefRankOrder" min="1" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelAddPreference()">Cancel</button>
+                        </form>
+                    </div>
+
+                    <div id="preferencesList" class="data-list"></div>
+                    <div id="preferencesMessage" class="message"></div>
+                </div>
+            </section>
+
+            <!-- Grades Section -->
+            <section id="grades" class="section">
+                <div class="card">
+                    <h2>📊 Grades (from QuickGrade)</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-secondary" onclick="loadGrades()">🔄 Refresh</button>
+                        <select id="gradeStudentFilter" onchange="filterGrades()" class="filter-select">
+                            <option value="">All Students</option>
+                        </select>
+                    </div>
+                    <div id="gradesList" class="data-list"></div>
+                    <div id="gradesMessage" class="message"></div>
+                </div>
+            </section>
+
+            <!-- Microservices Section -->
+            <section id="microservices" class="section">
+                <div class="card">
+                    <h2>🔗 Microservices Integration</h2>
+                    
+                    <div class="card-sub">
+                        <h3>QuickGrade Service Status</h3>
+                        <button class="btn btn-secondary" onclick="checkQuickGradeHealth()">🔍 Check Health</button>
+                        <div id="quickGradeHealth" class="service-status"></div>
+                    </div>
+
+                    <div class="card-sub">
+                        <h3>Grade Statistics</h3>
+                        <button class="btn btn-primary" onclick="loadQuickGradeStatistics()">📊 Fetch Statistics</button>
+                        <div id="quickGradeStats" class="stats-display"></div>
+                    </div>
+
+                    <div id="microservicesMessage" class="message"></div>
+                </div>
+            </section>
+
+            <!-- Actuator Section -->
+            <section id="actuator" class="section">
+                <div class="card">
+                    <h2>🔧 System Monitoring</h2>
+                    
+                    <div class="card-sub">
+                        <h3>Health</h3>
+                        <button class="btn btn-secondary" onclick="loadActuatorHealth()">🔍 Check Health</button>
+                        <div id="actuatorHealth" class="info-display"></div>
+                    </div>
+
+                    <div class="card-sub">
+                        <h3>Application Info</h3>
+                        <button class="btn btn-secondary" onclick="loadActuatorInfo()">ℹ️ Get Info</button>
+                        <div id="actuatorInfo" class="info-display"></div>
+                    </div>
+
+                    <div id="actuatorMessage" class="message"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p>PrefSchedule - Student Course Preference System | Spring Boot + JPA + Security + Messaging + Microservices</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

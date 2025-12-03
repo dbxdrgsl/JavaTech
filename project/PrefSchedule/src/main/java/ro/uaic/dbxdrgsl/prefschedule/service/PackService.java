@@ -44,4 +44,8 @@ public class PackService {
     public void deleteById(Long id) {
         packRepository.deleteById(id);
     }
+
+    public long count() {
+        return packRepository.count();
+    }
 }
