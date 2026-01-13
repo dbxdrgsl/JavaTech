@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrefSchedule - Students</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f2f2f2;
+        }
+        .api-link {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #2196F3;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 4px;
+        }
+        .api-link:hover {
+            background-color: #0b7dda;
+        }
+        .info-box {
+            background-color: #e7f3fe;
+            border-left: 4px solid #2196F3;
+            padding: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>PrefSchedule - Student List</h1>
+    
+    <div class="info-box">
+        <p><strong>Welcome to PrefSchedule!</strong> This is the student course preference scheduler for Java Technologies Labs 4-8.</p>
+        <p>Current view shows all students in the database.</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Year</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="student : ${students}">
+                <td th:text="${student.id}">1</td>
+                <td th:text="${student.code}">S2025-001</td>
+                <td th:text="${student.name}">John Doe</td>
+                <td th:text="${student.email}">john@example.com</td>
+                <td th:text="${student.year}">2</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+        <h3>API Endpoints:</h3>
+        <a href="/api/students" class="api-link">View JSON API - GET /api/students</a>
+    </div>
+</body>
+</html>
